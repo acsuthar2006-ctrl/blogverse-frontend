@@ -1,0 +1,223 @@
+# 📡 BlogVerse API Reference Guide for Frontend Developers
+
+> **Backend Repository**: [https://github.com/acsuthar2006-ctrl/blogverse](https://github.com/acsuthar2006-ctrl/blogverse)  
+> **Base URL**: `http://localhost:8080/api/v1`
+
+This document details all REST endpoints, payloads, headers, and authentication rules provided by the **BlogVerse API** backend server. Use this guide to structure your API client services, state management, and form handlers.
+
+---
+
+## 🔑 Authentication & Headers
+
+### JWT Authorization Header
+For protected endpoints (`POST`, `PUT`, `DELETE` operations for posts, categories, tags, or replies), attach the Bearer token received upon login:
+
+```http
+Authorization: Bearer <your-jwt-token>
+Content-Type: application/json
+```
+
+---
+
+## 👥 User Roles & Permissions Matrix
+
+| Role | Description | Allowed Actions |
+| :--- | :--- | :--- |
+| **`ADMIN`** | System Administrator | Full access. Manage posts, categories, tags. Edit/delete any comment. Reply to any comment. |
+| **`AUTHOR`** | Content Author | Create, edit, and delete **own** posts. Reply to comments on own posts. Edit/delete own comments. |
+| **`READER`** | Registered Reader | Read posts and comments. Post comments. Edit/delete own comments via JWT ownership check. |
+| **`ANONYMOUS`** | Guest Reader | Read posts/comments. Create comments (receives `editToken`). Edit/delete own comment using `editToken`. |
+
+---
+
+## 📡 Endpoint Quick Reference
+
+### 1. Auth Endpoints (`/api/v1/auth`)
+
+#### `POST /auth/register`
+- **Auth**: Public
+- **Request Body**:
+```json
+{
+  "name": "Alex Johnson",
+  "email": "alex@blogverse.com",
+  "password": "Password123!"
+}
+```
+- **Response** `(201 Created)`:
+```json
+{
+  "id": 1,
+  "name": "Alex Johnson",
+  "email": "alex@blogverse.com",
+  "role": "READER"
+}
+```
+
+#### `POST /auth/login`
+- **Auth**: Public
+- **Request Body**:
+```json
+{
+  "email": "alex@blogverse.com",
+  "password": "Password123!"
+}
+```
+- **Response** `(200 OK)`:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9...",
+  "type": "Bearer",
+  "username": "alex@blogverse.com",
+  "role": "READER"
+}
+```
+
+---
+
+### 2. Posts Endpoints (`/api/v1/posts`)
+
+#### `GET /posts`
+- **Auth**: Public
+- **Description**: Fetch all published posts with author, category, and tags metadata.
+- **Response** `(200 OK)`:
+```json
+[
+  {
+    "id": 101,
+    "title": "Mastering Modern Web Architecture with Spring Boot & React",
+    "slug": "mastering-modern-web-architecture",
+    "content": "Full article content markdown...",
+    "status": "PUBLISHED",
+    "author": {
+      "id": 1,
+      "name": "Alex Johnson",
+      "email": "alex@blogverse.com"
+    },
+    "category": {
+      "id": 5,
+      "name": "Engineering",
+      "slug": "engineering"
+    },
+    "tags": [
+      { "id": 1, "name": "React", "slug": "react" },
+      { "id": 2, "name": "Spring Boot", "slug": "spring-boot" }
+    ],
+    "createdDate": "2026-07-20T10:15:00Z",
+    "updatedDate": "2026-07-20T12:00:00Z"
+  }
+]
+```
+
+#### `GET /posts/{slug}`
+- **Auth**: Public
+- **Description**: Fetch single post by URL-friendly slug.
+
+#### `POST /posts`
+- **Auth**: 🔒 Authenticated (`AUTHOR` or `ADMIN`)
+- **Request Body**:
+```json
+{
+  "title": "Building High Performance Microservices",
+  "content": "Comprehensive markdown content here...",
+  "categoryId": 5,
+  "tagIds": [1, 3],
+  "status": "PUBLISHED"
+}
+```
+
+#### `PUT /posts/{slug}`
+- **Auth**: 🔒 Authenticated (Post author or `ADMIN`)
+- **Request Body**: Same structure as `POST /posts`.
+
+#### `DELETE /posts/{slug}`
+- **Auth**: 🔒 Authenticated (Post author or `ADMIN`)
+
+---
+
+### 3. Comments Endpoints (`/api/v1/comments` & `/api/v1/posts/{postId}/comments`)
+
+BlogVerse features a **smart dual authorization comment model**:
+- **Guest / Anonymous User**: No `Authorization` header required. When posting a comment, the API returns an `editToken`. Pass `?editToken=<token>` in query params for `PUT` / `DELETE`.
+- **Authenticated User**: Include `Authorization: Bearer <JWT>`. No `editToken` needed — the API automatically verifies comment ownership or admin privilege.
+
+#### `GET /posts/{postId}/comments`
+- **Auth**: Public
+- **Description**: Retrieve comments for a post, including nested replies (`parentCommentId`).
+
+#### `POST /posts/{postId}/comments`
+- **Auth**: Public / Authenticated
+- **Request Body**:
+```json
+{
+  "authorName": "Jane Reader",
+  "authorEmail": "jane@example.com",
+  "content": "Great article! Loved the explanation of JWT stateless auth."
+}
+```
+- **Response** `(201 Created)` (Anonymous):
+```json
+{
+  "id": 201,
+  "content": "Great article! Loved the explanation of JWT stateless auth.",
+  "authorName": "Jane Reader",
+  "authorEmail": "jane@example.com",
+  "createdDate": "2026-07-20T14:30:00Z",
+  "editToken": "ZWRpdC10b2tlbi0yMDEtYWJjMTIz",
+  "replies": []
+}
+```
+
+#### `POST /comments/{commentId}/replies`
+- **Auth**: 🔒 Authenticated (`AUTHOR` or `ADMIN`)
+- **Request Body**:
+```json
+{
+  "content": "Thank you Jane! Glad you found it helpful."
+}
+```
+
+#### `PUT /comments/{commentId}?editToken=...`
+- **Auth**: Public (with `editToken`) OR 🔒 Authenticated (JWT ownership / Admin)
+- **Request Body**:
+```json
+{
+  "content": "Updated comment text here..."
+}
+```
+
+#### `DELETE /comments/{commentId}?editToken=...`
+- **Auth**: Public (with `editToken`) OR 🔒 Authenticated (JWT ownership / Admin)
+
+---
+
+### 4. Categories & Tags (`/api/v1/categories`, `/api/v1/tags`)
+
+- `GET /categories` — List all categories
+- `POST /categories` — Create category (`{"name": "DevOps"}`)
+- `GET /tags` — List all tags
+
+---
+
+### 5. Actuator & Monitoring (`/actuator`)
+
+- `GET /actuator/health` — Returns `{"status": "UP"}`
+- `GET /actuator/info` — App information
+
+---
+
+## 🛠️ Error Response Format
+
+All API errors return a standard JSON payload:
+
+```json
+{
+  "timestamp": "2026-07-20T17:00:00Z",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Validation failed: Title cannot be empty",
+  "path": "/api/v1/posts"
+}
+```
+
+Please handle API errors gracefully in the frontend using toast notifications or inline error alerts.
