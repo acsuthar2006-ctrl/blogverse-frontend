@@ -4,7 +4,7 @@ import { useNavigate, Navigate, Link } from 'react-router-dom';
 import Button from '../components/Button';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login, user } = useContext(AuthContext);
@@ -17,11 +17,11 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    const success = await login(username, password);
+    const success = await login(email, password);
     if (success) {
       navigate('/dashboard');
     } else {
-      setError('Invalid username or password');
+      setError('Invalid email or password');
     }
   };
 
@@ -32,13 +32,13 @@ const Login = () => {
         {error && <div style={{ color: '#ef4444', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '1.5rem' }}>
-            <label htmlFor="username">Username</label>
+            <label htmlFor="email">Email</label>
             <input 
-              id="username" 
-              type="text" 
-              value={username} 
-              onChange={(e) => setUsername(e.target.value)} 
-              placeholder="Enter your username"
+              id="email" 
+              type="email" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              placeholder="Enter your email"
               required 
             />
           </div>
