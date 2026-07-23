@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import PostDetail from './pages/PostDetail';
 import Dashboard from './pages/Dashboard';
+import AddPost from './pages/AddPost';
 import './index.css';
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/post/:slug" element={<PostDetail />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/add-post" element={<AddPost />} />
             </Routes>
           </main>
         </div>

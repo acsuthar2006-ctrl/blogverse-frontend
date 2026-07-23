@@ -16,7 +16,7 @@ const PostCard = ({ post }) => {
         <p style={{ fontSize: '0.9rem', flexGrow: 1 }}>{post.summary}</p>
       </div>
       <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border-color)', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>By {post.author.fullName}</span>
+        <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>By {post.authorSummary?.fullName || 'Unknown'}</span>
         <Link to={`/post/${post.slug}`} style={{ fontSize: '0.85rem', fontWeight: '500' }}>Read more &rarr;</Link>
       </div>
     </div>
