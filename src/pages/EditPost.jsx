@@ -1,34 +1,50 @@
 /**
- * @file AddPost.jsx
- * @description Page for creating a new blog post.
- * Provides a form with fields for title, summary, content, and publish status.
- * Redirects to the dashboard on successful creation.
+ * @file EditPost.jsx
+ * @description Page for editing an existing blog post.
  */
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import api from '../api/axiosConfig';
+import postService from '../services/postService';
 import Button from '../components/Button';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
-const AddPost = () => {
+const EditPost = () => {
+  const { slug } = useParams();
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
   const [content, setContent] = useState('');
   const [status, setStatus] = useState('PUBLISHED');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const navigate = useNavigate();
 
-  /** Submit the new post to the backend. */
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const data = await postService.getPost(slug);
+        setTitle(data.title);
+        setSummary(data.summary || '');
+        setContent(data.content);
+        setStatus(data.status);
+      } catch (err) {
+        setError('Failed to load post. It may have been deleted.');
+      } finally {
+        setFetching(false);
+      }
+    };
+    fetchPost();
+  }, [slug]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     
     try {
-      const response = await api.post('/posts', {
+      await postService.updatePost(slug, {
         title,
         summary,
         content,
@@ -37,25 +53,25 @@ const AddPost = () => {
         tags: []
       });
       
-      if (response.data && response.data.success) {
-        toast.success('Post created successfully!');
-        navigate('/dashboard');
-      } else {
-        setError('Failed to create post. Please try again.');
-      }
+      toast.success('Post updated successfully!');
+      navigate('/dashboard');
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || 'Failed to create post.');
+      setError(err.response?.data?.message || 'Failed to update post.');
     } finally {
       setLoading(false);
     }
   };
 
+  if (fetching) {
+    return <div className="add-post-container"><p>Loading...</p></div>;
+  }
+
   return (
     <div className="add-post-container">
       <div className="glass-panel" style={{ padding: '2.5rem' }}>
-        <h2 style={{ marginBottom: '0.5rem' }}>Create New Post</h2>
-        <p style={{ marginBottom: '2rem' }}>Share your thoughts with the world.</p>
+        <h2 style={{ marginBottom: '0.5rem' }}>Edit Post</h2>
+        <p style={{ marginBottom: '2rem' }}>Make changes to your article.</p>
         
         {error && <div className="form-error">{error}</div>}
         
@@ -106,7 +122,7 @@ const AddPost = () => {
           </div>
           <div className="add-post-actions">
             <Button type="button" variant="outline" onClick={() => navigate('/dashboard')}>Cancel</Button>
-            <Button type="submit" disabled={loading}>{loading ? 'Publishing...' : 'Publish Post'}</Button>
+            <Button type="submit" disabled={loading}>{loading ? 'Saving...' : 'Save Changes'}</Button>
           </div>
         </form>
       </div>
@@ -114,4 +130,4 @@ const AddPost = () => {
   );
 };
 
-export default AddPost;
+export default EditPost;

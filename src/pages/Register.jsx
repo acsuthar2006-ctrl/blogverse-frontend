@@ -35,12 +35,15 @@ const Register = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '4rem auto' }}>
-      <div className="glass-panel">
-        <h2 className="text-center mb-2">Create Account</h2>
-        {error && <div style={{ color: '#ef4444', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
+    <div className="auth-container">
+      <div className="glass-panel auth-panel">
+        <div className="text-center">
+          <h2 className="auth-title">Create Account</h2>
+          <p className="auth-subtitle">Join the BlogVerse community today</p>
+        </div>
+        {error && <div className="form-error">{error}</div>}
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1.5rem' }}>
+          <div className="form-group">
             <label htmlFor="fullName">Full Name</label>
             <input 
               id="fullName" 
@@ -51,7 +54,7 @@ const Register = () => {
               required 
             />
           </div>
-          <div style={{ marginBottom: '1.5rem' }}>
+          <div className="form-group">
             <label htmlFor="email">Email</label>
             <input 
               id="email" 
@@ -62,7 +65,7 @@ const Register = () => {
               required 
             />
           </div>
-          <div style={{ marginBottom: '1.5rem' }}>
+          <div className="form-group">
             <label htmlFor="username">Username</label>
             <input 
               id="username" 
@@ -73,7 +76,7 @@ const Register = () => {
               required 
             />
           </div>
-          <div style={{ marginBottom: '2rem' }}>
+          <div className="form-group">
             <label htmlFor="password">Password</label>
             <input 
               id="password" 
@@ -85,8 +88,8 @@ const Register = () => {
               minLength={8}
             />
           </div>
-          <Button type="submit" style={{ width: '100%', marginBottom: '1rem' }}>Sign Up</Button>
-          <div className="text-center" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+          <Button type="submit" className="btn-full" style={{ marginTop: '0.5rem' }}>Create Account</Button>
+          <div className="auth-link">
             Already have an account? <Link to="/login">Sign In</Link>
           </div>
         </form>

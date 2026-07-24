@@ -50,7 +50,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await new Promise(resolve => setTimeout(resolve, 600)); // buffer animation
     localStorage.removeItem('token');
     setUser(null);
   };

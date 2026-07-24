@@ -1,4 +1,15 @@
+/**
+ * @file CommentSection.jsx
+ * @description Comment thread component embedded within PostDetail.
+ * Fetches and displays comments for a given post, and provides a form
+ * to submit new comments. Uses skeleton loaders during fetch and
+ * toast notifications for user feedback.
+ *
+ * @param {Object} props
+ * @param {number} props.postId - The database ID of the parent post.
+ */
 import React, { useState, useEffect, useContext } from 'react';
+import { toast } from 'react-hot-toast';
 import api from '../api/axiosConfig';
 import Button from './Button';
 import { AuthContext } from '../context/AuthContext';
@@ -10,6 +21,7 @@ const CommentSection = ({ postId }) => {
   const [submitting, setSubmitting] = useState(false);
   const { user } = useContext(AuthContext);
 
+  /** Fetch all top-level comments for this post from the backend. */
   const fetchComments = async () => {
     try {
       const response = await api.get(`/posts/${postId}/comments`);
@@ -23,10 +35,15 @@ const CommentSection = ({ postId }) => {
     }
   };
 
+  // Fetch comments on mount and when postId changes
   useEffect(() => {
     fetchComments();
   }, [postId]);
 
+  /**
+   * Submit a new comment. Uses the authenticated user's username
+   * or defaults to "Anonymous" for guest commenters.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
@@ -39,27 +56,28 @@ const CommentSection = ({ postId }) => {
         authorEmail: user ? user.username : 'anonymous@example.com'
       });
       setNewComment('');
-      fetchComments();
+      toast.success('Comment posted!');
+      fetchComments(); // Refresh the comment list
     } catch (err) {
       console.error('Failed to post comment', err);
-      alert('Failed to post comment');
+      toast.error('Failed to post comment');
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid var(--border-color)' }}>
+    <div className="comment-section">
       <h3>Comments ({comments.length})</h3>
       
-      <form onSubmit={handleSubmit} style={{ margin: '1.5rem 0', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {/* Comment submission form */}
+      <form onSubmit={handleSubmit} className="comment-form">
         <textarea
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Leave a comment..."
+          placeholder="Share your thoughts..."
           rows={3}
           required
-          style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)', background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-primary)', outline: 'none' }}
         />
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button type="submit" disabled={submitting}>
@@ -68,21 +86,33 @@ const CommentSection = ({ postId }) => {
         </div>
       </form>
 
+      {/* Comment list with loading/empty states */}
       {loading ? (
-        <p>Loading comments...</p>
+        <div className="comment-list">
+          {[1, 2].map(i => (
+            <div key={i} className="comment-card">
+              <div className="comment-header">
+                <div className="skeleton-line" style={{ height: '14px', width: '25%' }}></div>
+                <div className="skeleton-line" style={{ height: '14px', width: '15%' }}></div>
+              </div>
+              <div className="skeleton-line" style={{ height: '14px', width: '80%', marginBottom: '0.3rem' }}></div>
+              <div className="skeleton-line" style={{ height: '14px', width: '60%' }}></div>
+            </div>
+          ))}
+        </div>
       ) : comments.length === 0 ? (
-        <p style={{ color: 'var(--text-secondary)' }}>No comments yet. Be the first to share your thoughts!</p>
+        <p className="comment-empty">No comments yet. Be the first to share your thoughts!</p>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div className="comment-list">
           {comments.map((comment) => (
-            <div key={comment.id} style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                <strong>{comment.authorName}</strong>
-                <span style={{ color: 'var(--text-secondary)' }}>
-                  {new Date(comment.createdDate).toLocaleDateString()}
+            <div key={comment.id} className="comment-card">
+              <div className="comment-header">
+                <span className="comment-author">{comment.authorName}</span>
+                <span className="comment-date">
+                  {new Date(comment.createdDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                 </span>
               </div>
-              <p style={{ margin: 0, lineHeight: 1.5 }}>{comment.content}</p>
+              <p className="comment-content">{comment.content}</p>
             </div>
           ))}
         </div>
