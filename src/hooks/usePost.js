@@ -39,9 +39,24 @@ export const usePost = (slug) => {
     }
   }, [slug]);
 
+  const handleLike = async () => {
+    if (!post) return;
+    const originalPost = { ...post };
+    // Optimistic UI update
+    setPost({ ...post, likesCount: (post.likesCount || 0) + 1 });
+    try {
+      await postService.api?.post(`/posts/${slug}/like`) || await fetch(`/api/v1/posts/${slug}/like`, { method: 'POST' });
+    } catch (err) {
+      console.error('Failed to like post:', err);
+      // Revert if the backend doesn't support it yet
+      setPost(originalPost);
+    }
+  };
+
   return {
     post,
     loading,
     error,
+    handleLike
   };
 };
