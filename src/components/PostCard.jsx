@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, MessageCircle } from 'lucide-react';
 
 const PostCard = ({ post }) => {
   return (
@@ -15,10 +14,6 @@ const PostCard = ({ post }) => {
           </Link>
         </h3>
         <p className="post-card-summary">{post.summary}</p>
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Heart size={14} /> {post.likesCount || 0} Likes</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><MessageCircle size={14} /> {post.commentsCount || 0} Comments</span>
-        </div>
       </div>
       <div className="post-card-footer">
         <span className="post-card-author">

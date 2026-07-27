@@ -338,6 +338,9 @@ label {
 .post-card-title {
   margin-top: 0.75rem;
   margin-bottom: 0.5rem;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .post-card-title a {
   color: var(--text-primary);
@@ -354,6 +357,9 @@ label {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .post-card-footer {
   margin-top: auto;
@@ -439,6 +445,9 @@ label {
   font-size: 1.1rem;
   margin-bottom: 3rem;
   color: var(--text-secondary);
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .post-detail-content p {
   margin-bottom: 1.5rem;

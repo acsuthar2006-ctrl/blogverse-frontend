@@ -15,7 +15,6 @@ const EditPost = () => {
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
   const [content, setContent] = useState('');
-  const [status, setStatus] = useState('PUBLISHED');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -28,8 +27,9 @@ const EditPost = () => {
         setTitle(data.title);
         setSummary(data.summary || '');
         setContent(data.content);
-        setStatus(data.status);
+        setStatus(data.status || 'PUBLISHED');
       } catch (err) {
+        console.error('Error fetching post:', err);
         setError('Failed to load post. It may have been deleted.');
       } finally {
         setFetching(false);
@@ -108,17 +108,6 @@ const EditPost = () => {
                 style={{ height: '300px', marginBottom: '40px' }}
               />
             </div>
-          </div>
-          <div className="form-group">
-            <label htmlFor="status">Status</label>
-            <select 
-              id="status" 
-              value={status} 
-              onChange={(e) => setStatus(e.target.value)}
-            >
-              <option value="PUBLISHED">Publish Immediately</option>
-              <option value="DRAFT">Save as Draft</option>
-            </select>
           </div>
           <div className="add-post-actions">
             <Button type="button" variant="outline" onClick={() => navigate('/dashboard')}>Cancel</Button>

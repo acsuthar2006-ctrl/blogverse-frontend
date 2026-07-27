@@ -14,7 +14,7 @@ import postService from '../services/postService';
 /**
  * Hook to fetch and interact with a single blog post.
  * @param {string} slug - The URL slug identifying the post.
- * @returns {{ post: Object|null, loading: boolean, error: string, likePost: Function, sharePost: Function }}
+ * @returns {{ post: Object|null, loading: boolean, error: string }}
  */
 export const usePost = (slug) => {
   const [post, setPost] = useState(null);
@@ -28,6 +28,7 @@ export const usePost = (slug) => {
         const data = await postService.getPost(slug);
         setPost(data);
       } catch (err) {
+        console.error('Error fetching post:', err);
         setError('Post not found');
       } finally {
         setLoading(false);
@@ -38,42 +39,9 @@ export const usePost = (slug) => {
     }
   }, [slug]);
 
-  /**
-   * Like the current post. Optimistically increments the UI counter.
-   * @returns {Promise<{success: boolean, message?: string}>}
-   */
-  const likePost = async () => {
-    try {
-      await postService.likePost(slug);
-      setPost((prev) => ({ ...prev, likesCount: (prev.likesCount || 0) + 1 }));
-      return { success: true };
-    } catch (err) {
-      if (err.response && err.response.data && err.response.data.message) {
-        return { success: false, message: err.response.data.message };
-      }
-      return { success: false, message: 'You have already liked this post.' };
-    }
-  };
-
-  /**
-   * Share the current post. Optimistically increments the UI counter.
-   * @returns {Promise<{success: boolean, message?: string}>}
-   */
-  const sharePost = async () => {
-    try {
-      await postService.sharePost(slug);
-      setPost((prev) => ({ ...prev, sharesCount: (prev.sharesCount || 0) + 1 }));
-      return { success: true };
-    } catch (err) {
-      return { success: false, message: 'Failed to share post' };
-    }
-  };
-
   return {
     post,
     loading,
     error,
-    likePost,
-    sharePost,
   };
 };

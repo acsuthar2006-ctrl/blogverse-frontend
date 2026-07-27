@@ -32,10 +32,21 @@ const AddPost = () => {
         title,
         summary,
         content,
-        status,
         categories: [],
         tags: []
       });
+
+      // If user selected PUBLISHED, update it immediately to bypass backend DRAFT default
+      if (status === 'PUBLISHED') {
+        await api.put(`/posts/${response.data.data.slug}`, {
+          title,
+          summary,
+          content,
+          status: 'PUBLISHED',
+          categories: [],
+          tags: []
+        });
+      }
       
       if (response.data && response.data.success) {
         toast.success('Post created successfully!');
@@ -106,7 +117,7 @@ const AddPost = () => {
           </div>
           <div className="add-post-actions">
             <Button type="button" variant="outline" onClick={() => navigate('/dashboard')}>Cancel</Button>
-            <Button type="submit" disabled={loading}>{loading ? 'Publishing...' : 'Publish Post'}</Button>
+            <Button type="submit" disabled={loading}>{loading ? 'Saving...' : 'Save Post'}</Button>
           </div>
         </form>
       </div>

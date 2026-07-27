@@ -20,25 +20,6 @@ const postService = {
   },
 
   /**
-   * Like a post. The backend tracks likes by the requester's IP address
-   * so each device can only like a post once.
-   * @param {string} slug - The post's slug.
-   * @returns {Promise<void>}
-   */
-  likePost: async (slug) => {
-    return await api.post(`/posts/${slug}/like`);
-  },
-
-  /**
-   * Increment the share counter for a post.
-   * @param {string} slug - The post's slug.
-   * @returns {Promise<void>}
-   */
-  sharePost: async (slug) => {
-    return await api.post(`/posts/${slug}/share`);
-  },
-
-  /**
    * Create a new blog post.
    * @param {Object} postData - The post payload (title, summary, content, status, categories, tags).
    * @returns {Promise<Object>} The created post data.

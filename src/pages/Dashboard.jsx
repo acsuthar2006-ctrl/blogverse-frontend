@@ -5,7 +5,7 @@
  * a list of the user's posts with status badges, and actions to
  * create or delete posts. Redirects to /login if not authenticated.
  */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
 import api from '../api/axiosConfig';
@@ -19,10 +19,10 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   /** Fetch all posts authored by the current user. */
-  const fetchMyPosts = async () => {
+  const fetchMyPosts = useCallback(async () => {
     if (!user) return;
     try {
-      const response = await api.get(`/posts/author/${user.username}`);
+      const response = await api.get(`/posts/author/${user.email}`);
       if (response.data && response.data.success) {
         setPosts(response.data.data.content || []);
       }
@@ -31,11 +31,11 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchMyPosts();
-  }, [user]);
+  }, [fetchMyPosts]);
 
   /**
    * Delete a post by slug after user confirmation.

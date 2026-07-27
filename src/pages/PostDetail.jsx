@@ -8,44 +8,16 @@
  * Security: Post content is sanitized through DOMPurify before rendering
  * via `dangerouslySetInnerHTML` to prevent XSS attacks.
  */
-import React, { useContext } from 'react';
-import { Heart, Share2 } from 'lucide-react';
+import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import { toast } from 'react-hot-toast';
-import Button from '../components/Button';
 import CommentSection from '../components/CommentSection';
 import SkeletonLoader from '../components/SkeletonLoader';
-import { AuthContext } from '../context/AuthContext';
 import { usePost } from '../hooks/usePost';
 
 const PostDetail = () => {
-  const { user } = useContext(AuthContext);
   const { slug } = useParams();
-  const { post, loading, error, likePost, sharePost } = usePost(slug);
-
-  /** Like handler — requires authentication, shows toast feedback. */
-  const handleLike = async () => {
-    if (!user) {
-      toast.error('Please login to like this post');
-      return;
-    }
-    const result = await likePost();
-    if (!result.success) {
-      toast.error(result.message || 'Error liking post');
-    }
-  };
-
-  /** Share handler — copies URL to clipboard and shows toast. */
-  const handleShare = async () => {
-    const result = await sharePost();
-    if (result.success) {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success('Link copied to clipboard!');
-    } else {
-      toast.error(result.message || 'Error sharing post');
-    }
-  };
+  const { post, loading, error } = usePost(slug);
 
   // Loading & error states
   if (loading) return <SkeletonLoader />;
@@ -83,16 +55,6 @@ const PostDetail = () => {
           className="post-detail-content"
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }} 
         />
-
-        {/* Like & Share actions */}
-        <div className="post-detail-actions">
-          <Button onClick={handleLike} className="btn-outline">
-            <Heart size={16} /> Like ({post.likesCount || 0})
-          </Button>
-          <Button onClick={handleShare} className="btn-outline">
-            <Share2 size={16} /> Share ({post.sharesCount || 0})
-          </Button>
-        </div>
 
         <CommentSection postId={post.id} />
       </div>

@@ -8,7 +8,7 @@
  * @param {Object} props
  * @param {number} props.postId - The database ID of the parent post.
  */
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 import api from '../api/axiosConfig';
 import Button from './Button';
@@ -22,23 +22,23 @@ const CommentSection = ({ postId }) => {
   const { user } = useContext(AuthContext);
 
   /** Fetch all top-level comments for this post from the backend. */
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
+    if (!postId) return;
     try {
       const response = await api.get(`/posts/${postId}/comments`);
       if (response.data && response.data.success) {
         setComments(response.data.data);
       }
     } catch (err) {
-      console.error('Failed to fetch comments', err);
+      console.error('Failed to load comments', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [postId]);
 
-  // Fetch comments on mount and when postId changes
   useEffect(() => {
     fetchComments();
-  }, [postId]);
+  }, [fetchComments]);
 
   /**
    * Submit a new comment. Uses the authenticated user's username
