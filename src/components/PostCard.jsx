@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart } from 'lucide-react';
 
 const PostCard = ({ post }) => {
   return (
@@ -24,12 +23,7 @@ const PostCard = ({ post }) => {
             </Link>
           ) : 'Unknown'}
         </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-            <Heart size={14} /> {post.likesCount || 0}
-          </span>
-          <Link to={`/post/${post.slug}`} className="post-card-link">Read more &rarr;</Link>
-        </div>
+        <Link to={`/post/${post.slug}`} className="post-card-link">Read more &rarr;</Link>
       </div>
     </div>
   );

@@ -94,8 +94,6 @@ const Home = () => {
           }}
         >
           <option value="publishedAt,desc" style={{ color: 'black' }}>Recent</option>
-          <option value="likesCount,desc" style={{ color: 'black' }}>Most Liked</option>
-          <option value="commentsCount,desc" style={{ color: 'black' }}>Most Commented</option>
         </select>
       </div>
 

@@ -22,7 +22,7 @@ const Dashboard = () => {
   const fetchMyPosts = useCallback(async () => {
     if (!user) return;
     try {
-      const response = await api.get(`/posts/author/${user.email}`);
+      const response = await api.get('/posts/me');
       if (response.data && response.data.success) {
         setPosts(response.data.data.content || []);
       }

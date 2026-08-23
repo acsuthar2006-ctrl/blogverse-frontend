@@ -11,14 +11,13 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import { Heart } from 'lucide-react';
 import CommentSection from '../components/CommentSection';
 import SkeletonLoader from '../components/SkeletonLoader';
 import { usePost } from '../hooks/usePost';
 
 const PostDetail = () => {
   const { slug } = useParams();
-  const { post, loading, error, handleLike } = usePost(slug);
+  const { post, loading, error } = usePost(slug);
 
   // Loading & error states
   if (loading) return <SkeletonLoader />;
@@ -56,17 +55,6 @@ const PostDetail = () => {
           className="post-detail-content"
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }} 
         />
-
-        <div className="post-detail-actions" style={{ marginTop: '2rem', display: 'flex', gap: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem', marginBottom: '1rem' }}>
-          <button 
-            onClick={handleLike} 
-            className="action-button" 
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '1rem', padding: '0.5rem' }}
-          >
-            <Heart size={20} color="var(--primary-color)" /> 
-            <span>{post.likesCount || 0} Likes</span>
-          </button>
-        </div>
 
         <CommentSection postId={post.id} />
       </div>
