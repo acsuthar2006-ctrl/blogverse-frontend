@@ -15,6 +15,7 @@ const EditPost = () => {
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
   const [content, setContent] = useState('');
+  const [status, setStatus] = useState('PUBLISHED');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -96,6 +97,18 @@ const EditPost = () => {
               placeholder="A short description to hook your readers"
               rows={2}
             />
+          </div>
+          <div className="form-group">
+            <label htmlFor="status">Post Status</label>
+            <select 
+              id="status" 
+              value={status} 
+              onChange={(e) => setStatus(e.target.value)} 
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+            >
+              <option value="DRAFT">Save as Draft</option>
+              <option value="PUBLISHED">Published</option>
+            </select>
           </div>
           <div className="form-group">
             <label htmlFor="content">Content</label>

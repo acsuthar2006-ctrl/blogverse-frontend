@@ -53,7 +53,7 @@ const CommentSection = ({ postId }) => {
       await api.post(`/posts/${postId}/comments`, {
         content: newComment,
         authorName: user ? user.username : 'Anonymous',
-        authorEmail: user ? user.username : 'anonymous@example.com'
+        authorEmail: user ? user.email : 'anonymous@example.com'
       });
       setNewComment('');
       toast.success('Comment posted!');
