@@ -1,38 +1,61 @@
+/**
+ * @file Navbar.jsx
+ * @description Top navigation bar component.
+ * Displays the BlogVerse brand, navigation links, and auth actions.
+ * Uses `useLocation` from React Router to highlight the currently active tab.
+ * Conditionally renders Dashboard/Logout (authenticated) or Login (guest).
+ */
 import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { LogIn, LogOut, PenTool } from 'lucide-react';
+import { LogIn, LogOut, PenTool, Home, Loader2 } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+  
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    await logout();
+    setIsLoggingOut(false);
+  };
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   return (
-    <nav className="glass-panel" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', padding: '1rem 2rem' }}>
+    <nav className="glass-panel navbar">
       <div>
-        <Link to="/" style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--text-primary)' }}>
-          Blog<span style={{ color: 'var(--accent-color)' }}>Verse</span>
+        <Link to="/" className="navbar-brand">
+          Blog<span>Verse</span>
         </Link>
       </div>
-      <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-        <Link to="/" style={{ fontWeight: '500' }}>Home</Link>
+      <div className="navbar-links">
+        <Link to="/" className={`nav-link ${currentPath === '/' ? 'active' : ''}`}>
+          <Home size={16} /> Home
+        </Link>
         {user ? (
           <>
-            <Link to="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '500' }}>
-              <PenTool size={18} /> Dashboard
+            <Link to="/dashboard" className={`nav-link ${currentPath === '/dashboard' || currentPath === '/add-post' ? 'active' : ''}`}>
+              <PenTool size={16} /> Dashboard
             </Link>
-            <button 
-              onClick={logout} 
-              style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem' }}
-            >
-              <LogOut size={18} /> Logout
+            <button onClick={handleLogout} className="nav-link nav-link-logout" disabled={isLoggingOut}>
+              {isLoggingOut ? <Loader2 size={16} className="spin" /> : <LogOut size={16} />}
+              {isLoggingOut ? 'Logging out...' : 'Logout'}
             </button>
           </>
         ) : (
-          <Link to="/login" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '500', color: 'var(--accent-color)' }}>
-            <LogIn size={18} /> Login
+          <Link to="/login" className={`nav-link ${currentPath === '/login' || currentPath === '/register' ? 'active' : ''}`}>
+            <LogIn size={16} /> Login
           </Link>
         )}
       </div>
+
+      {isLoggingOut && (
+        <div className="full-page-loader">
+          <Loader2 size={48} className="spin" />
+          <span>Logging out...</span>
+        </div>
+      )}
     </nav>
   );
 };

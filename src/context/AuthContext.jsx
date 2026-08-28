@@ -13,9 +13,12 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        setUser({ username: decoded.sub }); // assuming sub is username
+        setUser({ 
+          email: decoded.sub, 
+          username: decoded.username || decoded.sub 
+        });
       } catch (err) {
-        console.error("Invalid token");
+        console.error("Invalid token", err);
         localStorage.removeItem('token');
       }
     }
@@ -28,7 +31,10 @@ export const AuthProvider = ({ children }) => {
       const token = response.data.data.token;
       localStorage.setItem('token', token);
       const decoded = jwtDecode(token);
-      setUser({ username: decoded.sub });
+      setUser({ 
+        email: decoded.sub, 
+        username: decoded.username || decoded.sub 
+      });
       return true;
     } catch (err) {
       console.error(err);
@@ -42,7 +48,10 @@ export const AuthProvider = ({ children }) => {
       const token = response.data.data.token;
       localStorage.setItem('token', token);
       const decoded = jwtDecode(token);
-      setUser({ username: decoded.sub });
+      setUser({ 
+        email: decoded.sub, 
+        username: decoded.username || decoded.sub 
+      });
       return true;
     } catch (err) {
       console.error(err);
@@ -50,7 +59,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await new Promise(resolve => setTimeout(resolve, 600)); // buffer animation
     localStorage.removeItem('token');
     setUser(null);
   };
